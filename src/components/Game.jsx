@@ -2,22 +2,40 @@ import { useState } from "react";
 import Board from "./Board";
 
 function Game() {
-  const [xIsNext, setXIsNext] = useState(true);
   const [history, setHistory] = useState([Array(9).fill(null)]);
-  const currentSquares = history[history.length - 1];
+  const [currentMove, setCurrentMove] = useState(0);
+  const xIsNext = currentMove % 2 === 0;
+  const currentSquares = history[currentMove];
 
   function handlePlay(nextSquares) {
-    setHistory([...history, nextSquares]);
-    setXIsNext(!xIsNext);
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1);
   }
+
+  function jumpTo(nextMove) {
+    setCurrentMove(nextMove);
+  }
+
+  const moves = history.map((squares, move) => {
+    let description;
+    if (move > 0) {
+      description = `${move} numaralı hamleye git`;
+    } else {
+      description = "Oyunun başlangıcına git";
+    }
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    );
+  });
 
   return (
     <>
       <div className="bg-teal-950 h-screen">
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
-        <p className="text-gray-400 text-center font-bold text-xl mt-8">
-          Yapılacaklar
-        </p>
+        <ol className="text-gray-300 text-center text-xl mt-8">{moves}</ol>
       </div>
     </>
   );
